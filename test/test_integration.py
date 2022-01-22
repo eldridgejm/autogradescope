@@ -33,9 +33,49 @@ def run_example(tmpdir_factory):
 
     return run
 
+# decorators
+# ----------
+
+@pytest.fixture(scope="module")
+def decorator_example(run_example):
+    results = run_example("""
+        from autogradescope.decorators import weight, visibility
+
+        DEFAULT_WEIGHT = 3
+        DEFAULT_VISIBILITY = 'after_due_date'
+
+        @weight(2)
+        def test_1():
+            assert 2 == 2
+
+        @visibility('visible')
+        def test_2():
+            assert 2 == 2
+
+        @weight(3)
+        @visibility('visible')
+        def test_3():
+            assert 2 == 2
+
+        def test_4():
+            assert 2 == 2
+    """)
+    return results
+
+
+def test_weight_decorator_overrides(decorator_example):
+    assert decorator_example['tests'][0]['score'] == 2
+
+def test_visibility_decorator_overrides(decorator_example):
+    assert decorator_example['tests'][1]['visibility'] == 'visible'
+
+def test_weight_visibility_decorators_stack(decorator_example):
+    assert decorator_example['tests'][2]['visibility'] == 'visible'
+    assert decorator_example['tests'][2]['score'] == 3
+
+
 # defaults
 # --------
-
 
 @pytest.fixture(scope="module")
 def defaults_example(run_example):
@@ -100,7 +140,7 @@ def test_score_multiple_tests(run_example):
 # import_submission
 # -----------------
 
-def test_import_submission_on_mission_module(run_example):
+def test_import_submission_on_missing_module(run_example):
     results = run_example("""
         import autogradescope
 
@@ -108,4 +148,75 @@ def test_import_submission_on_mission_module(run_example):
     """)
 
     assert results['score'] == 0
-    assert 'failed' in results['output']
+    assert 'named' in results['output']
+
+
+# timeout
+# -------
+
+def test_timeout_enforced(run_example):
+    results = run_example("""
+        from autogradescope.decorators import timeout
+
+        @timeout(1)
+        def test_this_forever():
+            while True:
+                pass
+    """)
+
+    assert results['tests'][0]['score'] == 0
+    assert 'too long' in results['tests'][0]['output']
+
+
+def test_timeout_allows_other_tests_to_run(run_example):
+    results = run_example("""
+        from autogradescope.decorators import timeout
+
+        @timeout(1)
+        def test_this_forever():
+            while True:
+                pass
+
+        @timeout(1)
+        def test_that():
+            assert 1 == 1
+    """)
+
+    assert results['tests'][1]['score'] == 1
+
+
+def test_timeout_obeys_default_override(run_example):
+    results = run_example("""
+        from autogradescope.decorators import timeout
+
+        DEFAULT_TIMEOUT = 1
+
+        def test_this_forever():
+            while True:
+                pass
+
+    """)
+
+    assert results['tests'][0]['score'] == 0
+    assert 'too long' in results['tests'][0]['output']
+
+
+def test_test_specific_override_with_module_override(run_example):
+    import time
+    start = time.time()
+
+    results = run_example("""
+        from autogradescope.decorators import timeout
+
+        DEFAULT_TIMEOUT = 20
+
+        @timeout(1)
+        def test_this_forever():
+            while True:
+                pass
+
+    """)
+
+    stop = time.time()
+
+    assert stop - start < 2

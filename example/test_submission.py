@@ -1,4 +1,4 @@
-from autogradescope.decorators import visibility, weight
+from autogradescope.decorators import visibility, weight, timeout
 from autogradescope import run_doctests
 
 DEFAULT_VISIBILITY = 'after_due_date'
@@ -9,7 +9,7 @@ def autogradescope_failure_message(item, report, exc, default_msg):
     return default_msg + '\nThank you.'
 
 
-import submissionz
+import submission
 
 
 # tests
@@ -30,3 +30,10 @@ def test_your_code_raised_an_exception():
 @weight(3)
 def test_ok():
     submission.ok()
+
+def test_doctests():
+    run_doctests(submission)
+
+@timeout(3)
+def test_timeout():
+    submission.i_take_4ever()

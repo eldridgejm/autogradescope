@@ -7,6 +7,7 @@ import textwrap
 
 import pytest
 
+from . import _timeout
 
 # pytest hooks
 # ============
@@ -23,9 +24,19 @@ def pytest_runtest_call(item):
     Note that AssertErrors arising from test failures have not been caught at this
     point, and they are saved, too.
 
+    This is where we check for test timeouts.
+
     """
+    # default timeout is 60 seconds, unless overridden
+    default_time_limit = item.function.__globals__.get('DEFAULT_TIMEOUT', 60)
+
+    # function-specific override
+    time_limit = getattr(item.function, 'gradescope_timeout', default_time_limit)
+
+    time_limited_test = _timeout.timeout(time_limit)(item.runtest)
+
     try:
-        item.runtest()
+        time_limited_test()
     except Exception as exc:
         item.session.exceptions[item] = exc
         raise
@@ -45,7 +56,6 @@ def pytest_pycollect_makemodule(path, parent):
     try:
         collector.module
     except Exception as exc:
-        print('here', exc)
         collector.session.collection_exception = exc
 
 
