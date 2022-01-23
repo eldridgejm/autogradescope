@@ -19,7 +19,8 @@ import submission
 @visibility('visible')
 def test_foo():
     """Correct answer should be 3"""
-    assert submission.incorrect_answer() == 3
+    your_answer = submission.incorrect_answer()
+    assert your_answer == 3
 
 @weight(1)
 def test_your_code_imported_an_unavailable_module():

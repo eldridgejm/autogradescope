@@ -1,1 +1,1 @@
-{"tests": [{"output": "Your code took longer than 3 seconds to run, which is too long. We have kindly\nasked your code to stop running.\n\n    @timeout(3)\n        def test_timeout():\n            \"\"\"Don't timeout!\"\"\"\n    >       submission.i_take_4ever()\n\n    test_submission.py:45:\nThank you.", "visibility": "after_due_date", "max_score": 2, "score": 0, "name": "Don't timeout!"}]}
+{"tests": []}

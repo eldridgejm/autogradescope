@@ -147,48 +147,52 @@ def infer_test_name(function):
 def format_output_msg(item: pytest.Item, report, exception: Exception):
     """Formats a nice output message with the test code causing the failure."""
     # the number of frames to trim from the traceback
-    n_frames_to_trim = 0
+    show_traceback = True
 
     if isinstance(exception, AssertionError):
         # the test failed because its output was not correct
         intro_msg = (
-            "Your code produced an incorrect output. Here is the test code that was "
-            "used and the line containing the check that failed:"
+            "Your code produced an incorrect output."
         )
     elif isinstance(exception, exceptions.Error):
         # this is a autogradescope error raised, e.g., by a timeout
         intro_msg = str(exception)
-        n_frames_to_trim = 1
+        if isinstance(exception, exceptions.DoctestError):
+            show_traceback = False
+
     elif isinstance(exception, ModuleNotFoundError):
         # the test failed because it imported some module that doesn't exist
         intro_msg = (
             f"It looks like your code is trying to import '{exception.name}', but this "
-            "package does not exist on Gradescope. Below is the full traceback of "
-            "the error, showing where this import happened."
+            "package does not exist on Gradescope."
         )
     else:
         # the submission raised an unexpected error
         intro_msg = (
-            f"Your code unexpectedly raised {repr(exception)}. Here is the full "
-            "traceback showing where this exception occurred."
+            f"Your code unexpectedly raised {repr(exception)}."
         )
 
     intro_msg = textwrap.fill(intro_msg, 80)
-    traceback = trim_last_n_frames(report.longreprtext, n_frames_to_trim)
-    traceback_msg = textwrap.indent(traceback, '    ')
+
+    if show_traceback:
+        traceback_lines = report.longrepr.chain[0][0].reprentries[0].lines
+        traceback_lines = cleanup_decorators(traceback_lines)
+        traceback = '\n'.join(traceback_lines)
+        traceback_msg = textwrap.indent(traceback, '    ')
+        traceback_msg = 'Here is the test that elicited the error:\n\n' + traceback_msg
+    else:
+        traceback_msg = ''
 
     return intro_msg + '\n\n' + traceback_msg
 
 
-def trim_last_n_frames(traceback: str, n: int):
-    """Hackily hack the last n entries from the traceback string."""
-    if n == 0:
-        return traceback
+def cleanup_decorators(traceback_lines):
+    """Removes leading decorators."""
+    if not traceback_lines:
+        return
 
-    lines = traceback.split('\n')
-    dividers = [line.strip().startswith('_ _ _ _ _') for line in lines]
-    first_divider_ix = dividers.index(True)
-    divider = lines[first_divider_ix]
-    sections = traceback.split(divider)
+    i = 0
+    while i < len(traceback_lines) and traceback_lines[i].lstrip().startswith('@'):
+        i += 1
 
-    return divider.join(sections[:len(sections) - n]).strip()
+    return traceback_lines[i:]
