@@ -136,7 +136,6 @@ def test_score_multiple_tests(run_example):
     assert scores == [0, 1, 1, 0]
     assert 'score' not in results
 
-
 # import_submission
 # -----------------
 
@@ -220,3 +219,34 @@ def test_test_specific_override_with_module_override(run_example):
     stop = time.time()
 
     assert stop - start < 2
+
+
+# test name inference
+# -------------------
+
+def test_gets_name_from_first_line_of_docstring(run_example):
+    results = run_example("""
+        from autogradescope.decorators import timeout
+
+        def test_that_this_fails():
+            \"""This just always fails
+
+            We hope.
+            \"""
+            assert 2 == 3
+
+    """)
+
+    assert results['tests'][0]['name'] == "This just always fails"
+
+
+def test_gets_name_from_function_name_if_no_docstring(run_example):
+    results = run_example("""
+        from autogradescope.decorators import timeout
+
+        def test_that_this_fails():
+            assert 2 == 3
+
+    """)
+
+    assert results['tests'][0]['name'] == "test_that_this_fails"

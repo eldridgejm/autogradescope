@@ -1,5 +1,7 @@
-__*/
+_*/
 .direnv/
+results.json
+
 
 !.envrc
 !.gitignore

@@ -8,6 +8,7 @@ import textwrap
 import pytest
 
 from . import _timeout
+from . import exceptions
 
 # pytest hooks
 # ============
@@ -73,7 +74,8 @@ def pytest_sessionfinish(session, exitstatus):
 
     # if there was a collection failure, we should exit immediately
     if hasattr(session, "collection_exception"):
-        _output_collection_error(session)
+        output_collection_error(session)
+        return
 
     result_dicts = []
     for item, report in session.reports.items():
@@ -89,10 +91,10 @@ def pytest_sessionfinish(session, exitstatus):
         json.dump(results_json, fileobj)
 
 
-def _output_collection_error(session):
+def output_collection_error(session):
     msg = textwrap.fill(
         "The autograder ran into a problem when starting. Check that your "
-        "submission is correctly named, and examine the output above for hints.",
+        "submission is correctly named.",
         80
     )
 
@@ -103,8 +105,6 @@ def _output_collection_error(session):
 
     with open('results.json', 'w') as fileobj:
         json.dump(results_json, fileobj)
-
-    pytest.exit(msg)
 
 
 def summarize_result(item: pytest.Item, report, exception: Exception):
@@ -118,6 +118,8 @@ def summarize_result(item: pytest.Item, report, exception: Exception):
     weight = getattr(item.function, "gradescope_weight", default_weight)
     score = 0 if report.failed else weight
 
+    test_name = infer_test_name(item.function)
+
     output_msg = format_output_msg(item, report, exception) if report.failed else ''
     # allow test code to override output
     if 'autogradescope_failure_message' in test_globs:
@@ -127,19 +129,36 @@ def summarize_result(item: pytest.Item, report, exception: Exception):
     return {
         "output": output_msg,
         "visibility": visibility,
-        "weight": weight,
-        "score": score
+        "max_score": weight,
+        "score": score,
+        "name": test_name
     }
+
+
+def infer_test_name(function):
+    """Get a test name from first line of docstring, or function name."""
+    if function.__doc__ is None:
+        return function.__name__
+    else:
+        lines = function.__doc__.split('\n')
+        return lines[0]
 
 
 def format_output_msg(item: pytest.Item, report, exception: Exception):
     """Formats a nice output message with the test code causing the failure."""
+    # the number of frames to trim from the traceback
+    n_frames_to_trim = 0
+
     if isinstance(exception, AssertionError):
         # the test failed because its output was not correct
         intro_msg = (
             "Your code produced an incorrect output. Here is the test code that was "
             "used and the line containing the check that failed:"
         )
+    elif isinstance(exception, exceptions.Error):
+        # this is a autogradescope error raised, e.g., by a timeout
+        intro_msg = str(exception)
+        n_frames_to_trim = 1
     elif isinstance(exception, ModuleNotFoundError):
         # the test failed because it imported some module that doesn't exist
         intro_msg = (
@@ -155,6 +174,21 @@ def format_output_msg(item: pytest.Item, report, exception: Exception):
         )
 
     intro_msg = textwrap.fill(intro_msg, 80)
-    traceback_msg = textwrap.indent(report.longreprtext, '    ')
+    traceback = trim_last_n_frames(report.longreprtext, n_frames_to_trim)
+    traceback_msg = textwrap.indent(traceback, '    ')
 
     return intro_msg + '\n\n' + traceback_msg
+
+
+def trim_last_n_frames(traceback: str, n: int):
+    """Hackily hack the last n entries from the traceback string."""
+    if n == 0:
+        return traceback
+
+    lines = traceback.split('\n')
+    dividers = [line.strip().startswith('_ _ _ _ _') for line in lines]
+    first_divider_ix = dividers.index(True)
+    divider = lines[first_divider_ix]
+    sections = traceback.split(divider)
+
+    return divider.join(sections[:len(sections) - n]).strip()

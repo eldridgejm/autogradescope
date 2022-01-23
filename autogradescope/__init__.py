@@ -1,4 +1,5 @@
 import doctest
+import textwrap
 
 from .exceptions import Error
 
