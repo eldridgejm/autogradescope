@@ -98,7 +98,7 @@ def output_collection_error(session):
         "1) Your submission is incorrectly named (check the spelling); "
         "2) Your code is importing a module which does not exist on Gradescope. "
         "The exact cause can be determined by carefully reading the full error messsage"
-        " shown above.",
+        " shown above."
     )
 
     results_json = {
