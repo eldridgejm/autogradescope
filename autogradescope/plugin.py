@@ -92,14 +92,18 @@ def pytest_sessionfinish(session, exitstatus):
 
 
 def output_collection_error(session):
-    msg = textwrap.fill(
-        "The autograder ran into a problem when starting. Check that your "
-        "submission is correctly named.",
-        80
+    msg = (
+        "The autograder ran into a problem when starting. This usually happens for "
+        "one of two reasons: "
+        "1) Your submission is incorrectly named (check the spelling); "
+        "2) Your code is importing a module which does not exist on Gradescope. "
+        "The exact cause can be determined by carefully reading the full error messsage"
+        " shown above.",
     )
 
     results_json = {
         "score": 0,
+        "stdout_visibility": "visible",
         "output": msg
     }
 

@@ -10,9 +10,11 @@ import pytest
 
 @pytest.fixture(scope="module")
 def run_example(tmpdir_factory):
-    def run(script):
+    def run(script, test_root=None):
         # create a tempdir with test code
-        test_root = pathlib.Path(tmpdir_factory.mktemp("tmp"))
+        if test_root is None:
+            test_root = pathlib.Path(tmpdir_factory.mktemp("tmp"))
+
         with (test_root / 'test_example.py').open('w') as fileobj:
             fileobj.write(dedent(script))
 
@@ -250,3 +252,67 @@ def test_gets_name_from_function_name_if_no_docstring(run_example):
     """)
 
     assert results['tests'][0]['name'] == "test_that_this_fails"
+
+# bad imports
+# -----------
+
+def test_overall_score_zero_on_missing_imports(run_example, tmpdir_factory):
+    test_root = pathlib.Path(tmpdir_factory.mktemp("tmp"))
+
+    with (test_root / 'submission.py').open('w') as fileobj:
+        fileobj.write(dedent("""
+            import wldakdsa
+
+            def foo():
+                return 42
+            """))
+
+    results = run_example("""
+        from autogradescope.decorators import timeout
+
+        import submission
+
+        def test_that_this_fails():
+            assert submission.foo() == 42
+
+    """, test_root=test_root)
+
+    assert results['score'] == 0
+
+
+def test_useful_overall_error_message_on_missing_import(run_example, tmpdir_factory):
+    test_root = pathlib.Path(tmpdir_factory.mktemp("tmp"))
+
+    with (test_root / 'submission.py').open('w') as fileobj:
+        fileobj.write(dedent("""
+            import this_module_doesnt_exist
+
+            def foo():
+                return 42
+            """))
+
+    results = run_example("""
+        from autogradescope.decorators import timeout
+
+        import submission
+
+        def test_that_this_fails():
+            assert submission.foo() == 42
+
+    """, test_root=test_root)
+
+    assert 'this_module_doesnt_exist' in results['output']
+
+
+def test_useful_overall_error_message_on_missing_submission(run_example):
+    results = run_example("""
+        from autogradescope.decorators import timeout
+
+        import submission
+
+        def test_that_this_fails():
+            assert submission.foo() == 42
+
+    """)
+
+    assert 'submission' in results['output']
