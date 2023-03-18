@@ -87,6 +87,12 @@ def pytest_sessionfinish(session, exitstatus):
 
     results_json = {'tests': result_dicts}
 
+    if 'LEADERBOARD' in session.items[0].function.__globals__:
+        leaderboard = session.items[0].function.__globals__['LEADERBOARD']
+        results_json['leaderboard'] = [
+            {'name': name, 'value': value} for (name, value) in leaderboard.items()
+        ]
+
     with open('results.json', 'w') as fileobj:
         json.dump(results_json, fileobj)
 

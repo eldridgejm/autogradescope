@@ -301,7 +301,7 @@ def test_useful_overall_error_message_on_missing_import(run_example, tmpdir_fact
 
     """, test_root=test_root)
 
-    assert 'this_module_doesnt_exist' in results['output']
+    assert 'code is importing a module which does not exist' in results['output']
 
 
 def test_useful_overall_error_message_on_missing_submission(run_example):
@@ -316,3 +316,32 @@ def test_useful_overall_error_message_on_missing_submission(run_example):
     """)
 
     assert 'submission' in results['output']
+
+# leaderboard
+# -----------
+
+
+@pytest.fixture(scope="module")
+def leaderboard_example(run_example):
+    results = run_example("""
+        LEADERBOARD = {}
+
+        def test_this():
+            LEADERBOARD['accuracy'] = .89
+            LEADERBOARD['speed'] = .2
+
+    """)
+    return results
+
+
+def test_leaderboard(leaderboard_example):
+    assert leaderboard_example['leaderboard'][0] == {
+            'name': 'accuracy',
+            'value': 0.89
+        }
+
+    assert leaderboard_example['leaderboard'][1] == {
+            'name': 'speed',
+            'value': 0.2
+        }
+
