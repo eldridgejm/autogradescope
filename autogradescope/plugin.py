@@ -135,11 +135,12 @@ def summarize_result(item: pytest.Item, report, exception: Exception):
     if 'autogradescope_failure_message' in test_globs:
         output_msg = test_globs['autogradescope_failure_message'](item, report, exception, output_msg)
 
+    is_extra_credit = getattr(item.function, "gradescope_extra_credit", False)
 
     return {
         "output": output_msg,
         "visibility": visibility,
-        "max_score": weight,
+        "max_score": weight if not is_extra_credit else 0,
         "score": score,
         "name": test_name
     }

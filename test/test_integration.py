@@ -61,12 +61,18 @@ def decorator_example(run_example):
 
         def test_4():
             assert 2 == 2
+
+        @weight(2, extra_credit=True)
+        def test_5():
+            assert 3 == 3
+
     """)
     return results
 
 
 def test_weight_decorator_overrides(decorator_example):
     assert decorator_example['tests'][0]['score'] == 2
+    assert decorator_example['tests'][0]['max_score'] == 2
 
 def test_visibility_decorator_overrides(decorator_example):
     assert decorator_example['tests'][1]['visibility'] == 'visible'
@@ -74,6 +80,10 @@ def test_visibility_decorator_overrides(decorator_example):
 def test_weight_visibility_decorators_stack(decorator_example):
     assert decorator_example['tests'][2]['visibility'] == 'visible'
     assert decorator_example['tests'][2]['score'] == 3
+
+def test_extra_credit_decorator_sets_max_points(decorator_example):
+    assert decorator_example['tests'][4]['score'] == 2
+    assert decorator_example['tests'][4]['max_score'] == 0
 
 
 # defaults
