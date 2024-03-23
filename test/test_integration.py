@@ -26,7 +26,7 @@ def run_example(tmpdir_factory):
 
         # create a stub conftest.py in that directory to load autogradescope
         with (test_root / "conftest.py").open("w") as fileobj:
-            fileobj.write('pytest_plugins = "autogradescope.plugin"')
+            fileobj.write('pytest_plugins = "autogradescope.pytest_plugin"')
 
         # run the tests
         subprocess.run("pytest", cwd=test_root)
@@ -51,6 +51,7 @@ def test_raises_if_there_is_no_SETTINGS_variable(run_example):
 
     assert "misconfigured" in results["output"]
     assert "missing SETTINGS" in results["output"]
+
 
 def test_with_invalid_default_visibility(run_example):
     results = run_example(
@@ -498,3 +499,72 @@ def test_leaderboard(leaderboard_example):
     assert leaderboard_example["leaderboard"][0] == {"name": "accuracy", "value": 0.89}
 
     assert leaderboard_example["leaderboard"][1] == {"name": "speed", "value": 0.2}
+
+
+# doctests
+
+
+def test_fails_if_doctest_fails(run_example, tmp_path_factory):
+    test_root = tmp_path_factory.mktemp("tmp")
+
+    with (test_root / "submission.py").open("w") as fileobj:
+        fileobj.write(
+            dedent(
+                """
+            def foo():
+                \"""
+                >>> foo() == 43
+                \"""
+                return 42
+            """
+            )
+        )
+
+    results = run_example(
+        """
+        from autogradescope import Settings, doctests
+        SETTINGS = Settings()
+
+        import submission
+
+        def test_this():
+            doctests.run(submission)
+
+    """,
+        test_root=test_root,
+    )
+
+    assert "some of the doctests failed" in results['tests'][0]["output"]
+
+def test_ok_if_doctests_pass(run_example, tmp_path_factory):
+    test_root = tmp_path_factory.mktemp("tmp")
+
+    with (test_root / "submission.py").open("w") as fileobj:
+        fileobj.write(
+            dedent(
+                """
+            def foo():
+                \"""
+                >>> foo() == 42
+                \"""
+                return 42
+            """
+            )
+        )
+
+    results = run_example(
+        """
+        from autogradescope import Settings, doctests
+        SETTINGS = Settings()
+
+        import submission
+
+        def test_this():
+            doctests.run(submission)
+
+    """,
+        test_root=test_root,
+    )
+
+    assert "doctests" not in results
+
