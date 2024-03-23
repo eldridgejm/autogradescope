@@ -22,7 +22,11 @@ def run_example(tmpdir_factory):
         autogradescope_path = (
             pathlib.Path(__file__).parent / ".." / "autogradescope"
         ).resolve()
-        subprocess.run(f"ln -s {autogradescope_path} {test_root}", shell=True)
+        subprocess.run(f"cp -r {autogradescope_path} {test_root}", shell=True)
+
+        # remove the template directory; it contains tests and will interfere with
+        # pytest
+        subprocess.run(f"rm -r {test_root}/autogradescope/template", shell=True)
 
         # create a stub conftest.py in that directory to load autogradescope
         with (test_root / "conftest.py").open("w") as fileobj:
@@ -36,6 +40,17 @@ def run_example(tmpdir_factory):
             return json.load(fileobj)
 
     return run
+
+# collection ---------------------------------------------------------------------------
+
+def test_prints_a_message_if_there_are_no_tests(run_example):
+    results = run_example(
+        """
+        from autogradescope import Settings
+        SETTINGS = Settings()
+    """
+    )
+    assert "did not find any tests" in results["output"]
 
 
 # test Settings -------------------------------------------------------------------
@@ -534,7 +549,8 @@ def test_fails_if_doctest_fails(run_example, tmp_path_factory):
         test_root=test_root,
     )
 
-    assert "some of the doctests failed" in results['tests'][0]["output"]
+    assert "some of the doctests failed" in results["tests"][0]["output"]
+
 
 def test_ok_if_doctests_pass(run_example, tmp_path_factory):
     test_root = tmp_path_factory.mktemp("tmp")
@@ -567,4 +583,3 @@ def test_ok_if_doctests_pass(run_example, tmp_path_factory):
     )
 
     assert "doctests" not in results
-

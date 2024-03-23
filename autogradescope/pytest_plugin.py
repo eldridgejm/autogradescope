@@ -82,6 +82,10 @@ def pytest_runtest_makereport(item, call):
 def pytest_sessionfinish(session, exitstatus):
     """At session end, write results to Gradescope JSON with nice error messages."""
 
+    if not session.items:
+        output_no_tests_error(session)
+        return
+
     # if there was a collection failure, we should exit immediately
     if hasattr(session, "collection_exception"):
         if isinstance(session.collection_exception, exceptions.SettingsError):
@@ -132,6 +136,17 @@ def output_configuration_error(session):
         "The autograder appears to be misconfigured. Contact the instructor to let them"
         " know about this problem. The full error message is shown below.\n\n"
         f"{str(session.collection_exception)}"
+    )
+
+    results_json = {"score": 0, "stdout_visibility": "visible", "output": msg}
+    with open("results.json", "w") as fileobj:
+        json.dump(results_json, fileobj)
+
+
+def output_no_tests_error(session):
+    msg = (
+        "The autograder did not find any tests to run. This usually happens when the "
+        "test module is missing or the module is empty."
     )
 
     results_json = {"score": 0, "stdout_visibility": "visible", "output": msg}

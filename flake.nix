@@ -19,7 +19,7 @@
           python3Packages.buildPythonPackage rec {
             name = "autogradescope";
             src = ./.;
-            propagatedBuildInputs = with python3Packages; [pytest rich];
+            propagatedBuildInputs = with python3Packages; [pytest click rich];
             nativeBuildInputs = with python3Packages; [pytest sphinx sphinx_rtd_theme pip];
             doCheck = false;
           }
