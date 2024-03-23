@@ -7,20 +7,26 @@ def visibility(vis):
     def decorator(test_func):
         test_func.gradescope_visibility = vis
         return test_func
+
     return decorator
 
 
 def weight(points, extra_credit=False):
     """Changes the weight from the default of 1."""
+
     def decorator(test_func):
         test_func.gradescope_weight = points
         test_func.gradescope_extra_credit = extra_credit
         return test_func
+
     return decorator
+
 
 def timeout(seconds):
     """Changes the timeout from the default of 60 seconds."""
+
     def decorator(test_func):
         test_func.gradescope_timeout = seconds
         return test_func
+
     return decorator

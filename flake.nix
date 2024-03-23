@@ -1,5 +1,7 @@
 {
-  inputs.nixpkgs.url = github:NixOS/nixpkgs/21.11;
+  description = "Python package for creating Gradescope autograders.";
+
+  inputs.nixpkgs.url = github:NixOS/nixpkgs/nixos-23.11;
 
   outputs = {
     self,
@@ -7,28 +9,25 @@
   }: let
     supportedSystems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
     forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f system);
-  in rec {
-    devShell = forAllSystems (
-      system: let
-        pkgs = import nixpkgs {system = system;};
-      in
-        pkgs.mkShell {
-          buildInputs = [
-            (
-              pkgs.python3.withPackages (
-                ps: [
-                  ps.pytest
-                  ps.black
-                  ps.rich
-                ]
-              )
-            )
-          ];
-          nativeBuildInputs = with pkgs.python3Packages; [
-            sphinx
-            sphinx_rtd_theme
-          ];
-        }
+  in {
+    autogradescope = forAllSystems (
+      system:
+        with import nixpkgs {
+          system = "${system}";
+          allowBroken = true;
+        };
+          python3Packages.buildPythonPackage rec {
+            name = "autogradescope";
+            src = ./.;
+            propagatedBuildInputs = with python3Packages; [pytest rich];
+            nativeBuildInputs = with python3Packages; [pytest sphinx sphinx_rtd_theme pip];
+            doCheck = false;
+          }
+    );
+
+    defaultPackage = forAllSystems (
+      system:
+        self.autogradescope.${system}
     );
   };
 }
