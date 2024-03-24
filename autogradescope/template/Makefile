@@ -17,7 +17,6 @@ test:
 	cp solution/* _build/test
 	cd _build/test && pytest -s
 
-
 .PHONY: clean
 clean:
 	rm -rf _build

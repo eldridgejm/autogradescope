@@ -1,5 +1,1 @@
 gradescope-utils>=0.2.7
-pytest
-numpy
-pandas
-scipy
