@@ -48,3 +48,9 @@ def test_efficiency():
     """Checks that your code runs efficiently."""
     for _ in range(100_000):
         foo.double(1)
+
+
+@weight(2, extra_credit=True)
+def test_for_extra_credit():
+    """This test is worth 2 points."""
+    assert foo.double(2) == 4

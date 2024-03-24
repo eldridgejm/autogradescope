@@ -29,6 +29,32 @@ def replace_line(file_path, old_line, new_line):
                 fileobj.write(line)
 
 
+def copy_template(template_path, dest_path):
+    """Copy the template to the destination path.
+
+    This avoids using shutil.copytree since it doesn't work well with
+    package resources (which may be read-only).
+    """
+
+    def copy_template_file(src, dest):
+        with open(src, "r") as fileobj:
+            content = fileobj.read()
+
+        dest.write_text(content)
+
+    def copy_template_directory(src, dest):
+        if src.name == "__pycache__":
+            return
+
+        dest.mkdir()
+        for item in src.iterdir():
+            if item.is_dir():
+                copy_template_directory(item, dest / item.name)
+            else:
+                copy_template_file(item, dest / item.name)
+
+    copy_template_directory(template_path, dest_path)
+
 # main function =====================================================================
 
 
@@ -45,11 +71,11 @@ def main():
 
     # copy the template
     template_path = importlib.resources.files("autogradescope") / "template"
-    shutil.copytree(template_path, "autograder")
+    copy_template(template_path, pathlib.Path("autograder"))
 
     # copy the autogradescope source into the autograder setup
     src_path = importlib.resources.files("autogradescope")
-    shutil.copytree(src_path, "autograder/setup/autogradescope")
+    copy_template(src_path, pathlib.Path("autograder/setup/autogradescope"))
 
     # remove the autogradescope/template directory
     shutil.rmtree("autograder/setup/autogradescope/template")
@@ -74,9 +100,6 @@ def main():
     # create the solution module
     solution_module_path = pathlib.Path(f"autograder/solution/{module_name}.py")
     solution_module_path.touch()
-
-    rich.print("[green]Autograder created successfully![/green]")
-
 
 if __name__ == "__main__":
     main()
