@@ -1,4 +1,9 @@
-"""These tests run pytest in the shell and look at results.json."""
+"""Integration tests for autogradescope.
+
+These tests run pytest in the shell and check results.json to make sure it is
+as expected.
+
+"""
 
 import pathlib
 import subprocess
@@ -8,8 +13,13 @@ from textwrap import dedent
 import pytest
 
 
+# fixtures =============================================================================
+
+
 @pytest.fixture(scope="module")
 def run_example(tmpdir_factory):
+    """Run a test script in a temp directory and return the contents of results.json."""
+
     def run(script, test_root=None):
         # create a tempdir with test code
         if test_root is None:
@@ -42,7 +52,9 @@ def run_example(tmpdir_factory):
     return run
 
 
-# collection ---------------------------------------------------------------------------
+# tests ================================================================================
+
+# collection oriented ------------------------------------------------------------------
 
 
 def test_prints_a_message_if_there_are_no_tests(run_example):
@@ -55,7 +67,7 @@ def test_prints_a_message_if_there_are_no_tests(run_example):
     assert "did not find any tests" in results["output"]
 
 
-# test Settings -------------------------------------------------------------------
+# settings -------------------------------------------------------------------
 
 
 def test_raises_if_there_is_no_SETTINGS_variable(run_example):
@@ -106,7 +118,7 @@ def test_with_invalid_attribute_added_to_Settings(run_example):
     assert "misconfigured" in results["output"]
 
 
-def test_modifying_Settings_affects_results_json(run_example):
+def test_modifying_settings_affects_results_json(run_example):
     results = run_example(
         """
         from autogradescope import Settings
@@ -121,9 +133,6 @@ def test_modifying_Settings_affects_results_json(run_example):
     )
 
     assert results["tests"][0]["score"] == 3
-
-
-# defaults -----------------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
@@ -171,8 +180,7 @@ def test_default_visibility_override(overrides_example):
     assert overrides_example["tests"][0]["visibility"] == "hidden"
 
 
-# decorators
-# ----------
+# decorators ---------------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
@@ -230,8 +238,33 @@ def test_extra_credit_decorator_sets_max_points(decorator_example):
     assert decorator_example["tests"][4]["max_score"] == 0
 
 
-# scoring
-# -------
+def test_test_specific_override_with_module_override(run_example):
+    import time
+
+    start = time.time()
+
+    results = run_example(
+        """
+        from autogradescope.decorators import timeout
+
+        from autogradescope import Settings
+        SETTINGS = Settings()
+        SETTINGS.default_timeout = 20
+
+        @timeout(1)
+        def test_this_forever():
+            while True:
+                pass
+
+    """
+    )
+
+    stop = time.time()
+
+    assert stop - start < 2
+
+
+# scoring ------------------------------------------------------------------------------
 
 
 def test_score_multiple_tests(run_example):
@@ -259,158 +292,7 @@ def test_score_multiple_tests(run_example):
     assert "score" not in results
 
 
-# import_submission
-# -----------------
-
-
-def test_import_submission_on_missing_module(run_example):
-    results = run_example(
-        """
-        import autogradescope
-
-        submission = autogradescope.import_submission("missingmodule")
-    """
-    )
-
-    assert results["score"] == 0
-    assert "named" in results["output"]
-
-
-# timeout
-# -------
-
-
-def test_timeout_enforced(run_example):
-    results = run_example(
-        """
-        from autogradescope.decorators import timeout
-        from autogradescope import Settings
-
-        SETTINGS = Settings()
-
-        @timeout(1)
-        def test_this_forever():
-            while True:
-                pass
-    """
-    )
-
-    assert results["tests"][0]["score"] == 0
-    assert "too long" in results["tests"][0]["output"]
-
-
-def test_timeout_allows_other_tests_to_run(run_example):
-    results = run_example(
-        """
-        from autogradescope.decorators import timeout
-        from autogradescope import Settings
-
-        SETTINGS = Settings()
-
-        @timeout(1)
-        def test_this_forever():
-            while True:
-                pass
-
-        @timeout(1)
-        def test_that():
-            assert 1 == 1
-    """
-    )
-
-    assert results["tests"][1]["score"] == 1
-
-
-def test_timeout_obeys_default_override(run_example):
-    results = run_example(
-        """
-        from autogradescope.decorators import timeout
-
-        from autogradescope import Settings
-        SETTINGS = Settings()
-        SETTINGS.default_timeout = 1
-
-        def test_this_forever():
-            while True:
-                pass
-
-    """
-    )
-
-    assert results["tests"][0]["score"] == 0
-    assert "too long" in results["tests"][0]["output"]
-
-
-def test_test_specific_override_with_module_override(run_example):
-    import time
-
-    start = time.time()
-
-    results = run_example(
-        """
-        from autogradescope.decorators import timeout
-
-        from autogradescope import Settings
-        SETTINGS = Settings()
-        SETTINGS.default_timeout = 20
-
-        @timeout(1)
-        def test_this_forever():
-            while True:
-                pass
-
-    """
-    )
-
-    stop = time.time()
-
-    assert stop - start < 2
-
-
-# test name inference
-# -------------------
-
-
-def test_gets_name_from_first_line_of_docstring(run_example):
-    results = run_example(
-        """
-        from autogradescope.decorators import timeout
-        from autogradescope import Settings
-
-        SETTINGS = Settings()
-
-        def test_that_this_fails():
-            \"""This just always fails
-
-            We hope.
-            \"""
-            assert 2 == 3
-
-    """
-    )
-
-    assert results["tests"][0]["name"] == "This just always fails"
-
-
-def test_gets_name_from_function_name_if_no_docstring(run_example):
-    results = run_example(
-        """
-        from autogradescope.decorators import timeout
-        from autogradescope import Settings
-
-        SETTINGS = Settings()
-
-        def test_that_this_fails():
-            assert 2 == 3
-
-    """
-    )
-
-    assert results["tests"][0]["name"] == "test_that_this_fails"
-
-
-# bad imports
-# -----------
+# missing submission / bad imports -----------------------------------------------------
 
 
 def test_overall_score_zero_on_missing_imports(run_example, tmpdir_factory):
@@ -491,8 +373,112 @@ def test_useful_overall_error_message_on_missing_submission(run_example):
     assert "submission" in results["output"]
 
 
-# leaderboard
-# -----------
+# timeouts -----------------------------------------------------------------------------
+
+
+def test_timeout_enforced(run_example):
+    results = run_example(
+        """
+        from autogradescope.decorators import timeout
+        from autogradescope import Settings
+
+        SETTINGS = Settings()
+
+        @timeout(1)
+        def test_this_forever():
+            while True:
+                pass
+    """
+    )
+
+    assert results["tests"][0]["score"] == 0
+    assert "too long" in results["tests"][0]["output"]
+
+
+def test_timeout_allows_other_tests_to_run(run_example):
+    results = run_example(
+        """
+        from autogradescope.decorators import timeout
+        from autogradescope import Settings
+
+        SETTINGS = Settings()
+
+        @timeout(1)
+        def test_this_forever():
+            while True:
+                pass
+
+        @timeout(1)
+        def test_that():
+            assert 1 == 1
+    """
+    )
+
+    assert results["tests"][1]["score"] == 1
+
+
+def test_timeout_obeys_default_override(run_example):
+    results = run_example(
+        """
+        from autogradescope.decorators import timeout
+
+        from autogradescope import Settings
+        SETTINGS = Settings()
+        SETTINGS.default_timeout = 1
+
+        def test_this_forever():
+            while True:
+                pass
+
+    """
+    )
+
+    assert results["tests"][0]["score"] == 0
+    assert "too long" in results["tests"][0]["output"]
+
+
+# test name inference ------------------------------------------------------------------
+
+
+def test_gets_name_from_first_line_of_docstring(run_example):
+    results = run_example(
+        """
+        from autogradescope.decorators import timeout
+        from autogradescope import Settings
+
+        SETTINGS = Settings()
+
+        def test_that_this_fails():
+            \"""This just always fails
+
+            We hope.
+            \"""
+            assert 2 == 3
+
+    """
+    )
+
+    assert results["tests"][0]["name"] == "This just always fails"
+
+
+def test_gets_name_from_function_name_if_no_docstring(run_example):
+    results = run_example(
+        """
+        from autogradescope.decorators import timeout
+        from autogradescope import Settings
+
+        SETTINGS = Settings()
+
+        def test_that_this_fails():
+            assert 2 == 3
+
+    """
+    )
+
+    assert results["tests"][0]["name"] == "test_that_this_fails"
+
+
+# leaderboard --------------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
@@ -518,7 +504,7 @@ def test_leaderboard(leaderboard_example):
     assert leaderboard_example["leaderboard"][1] == {"name": "speed", "value": 0.2}
 
 
-# doctests
+# doctests -----------------------------------------------------------------------------
 
 
 def test_fails_if_doctest_fails(run_example, tmp_path_factory):

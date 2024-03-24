@@ -1,3 +1,5 @@
+"""Tests for the Settings object."""
+
 from autogradescope import Settings
 from autogradescope.exceptions import SettingsError
 
