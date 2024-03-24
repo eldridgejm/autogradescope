@@ -41,7 +41,9 @@ def run_example(tmpdir_factory):
 
     return run
 
+
 # collection ---------------------------------------------------------------------------
+
 
 def test_prints_a_message_if_there_are_no_tests(run_example):
     results = run_example(

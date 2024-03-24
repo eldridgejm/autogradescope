@@ -1,3 +1,4 @@
+"""A convenience function for running doctests within autograder tests."""
 import contextlib
 import doctest
 import io
@@ -5,7 +6,21 @@ import textwrap
 
 from .exceptions import DoctestError
 
+
 def run(module):
+    """Run doctests for a module.
+
+    Parameters
+    ----------
+    module : module
+        The module to run doctests for.
+
+    Raises
+    ------
+    DoctestError
+        If any of the doctests fail.
+
+    """
     with contextlib.redirect_stdout(io.StringIO()) as f:
         result = doctest.testmod(module)
 

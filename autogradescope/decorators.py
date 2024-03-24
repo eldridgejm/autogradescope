@@ -1,4 +1,9 @@
-def visibility(vis):
+"""Decorators that change the behavior of tests."""
+
+from numbers import Number
+
+
+def visibility(vis: str):
     """Changes the visibility from the default of after_published. Validates."""
     valid = {"after_due_date", "visible", "hidden", "after_published"}
     if vis not in valid:
@@ -11,8 +16,18 @@ def visibility(vis):
     return decorator
 
 
-def weight(points, extra_credit=False):
-    """Changes the weight from the default of 1."""
+def weight(points: Number, extra_credit: bool = False):
+    """Changes the weight from the default of 1.
+
+    Parameters
+    ----------
+    points : Number
+        The number of points the test is worth.
+
+    extra_credit : bool, optional
+        Whether the test allows extra credit. Default is False.
+
+    """
 
     def decorator(test_func):
         test_func.gradescope_weight = points
@@ -22,7 +37,7 @@ def weight(points, extra_credit=False):
     return decorator
 
 
-def timeout(seconds):
+def timeout(seconds: int):
     """Changes the timeout from the default of 60 seconds."""
 
     def decorator(test_func):

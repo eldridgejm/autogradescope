@@ -1,3 +1,6 @@
+"""Exceptions for the autogradescope package."""
+
+
 class Error(Exception):
     """Base class for all exceptions in this package."""
 
