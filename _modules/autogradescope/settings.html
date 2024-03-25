@@ -76,7 +76,10 @@
 <div class="viewcode-block" id="Settings">
 <a class="viewcode-back" href="../../index.html#autogradescope.Settings">[docs]</a>
 <span class="k">class</span> <span class="nc">Settings</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An object to store settings for the autograder.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stores autograder settings.</span>
+
+<span class="sd">    A test module should have a single instance of this object, named</span>
+<span class="sd">    ``SETTINGS``, that is used to store the settings for the autograder.</span>
 
 <span class="sd">    This object does error checking on the settings to ensure that they are</span>
 <span class="sd">    valid, and to prevent typos from causing terrible catastrophes that could</span>
@@ -88,29 +91,32 @@
 <span class="sd">    default_visibility : str</span>
 <span class="sd">        The default visibility of the tests. Valid options are:</span>
 
-<span class="sd">        - &quot;hidden&quot;: The test results are never visible to the students.</span>
+<span class="sd">        - ``hidden``: The test results are never visible to the students.</span>
 
-<span class="sd">        - &quot;visible&quot;: The test results are always visible to the students.</span>
+<span class="sd">        - ``visible``: The test results are always visible to the students.</span>
 
-<span class="sd">        - &quot;after_published&quot;: test case will be shown only when the assignment</span>
-<span class="sd">          is explicitly published from the &quot;Review Grades&quot; page.</span>
+<span class="sd">        - ``after_published``: test case will be shown only when the assignment</span>
+<span class="sd">          is explicitly published from the &quot;Review Grades&quot; page. If not provided,</span>
+<span class="sd">          this is the default.</span>
 
-<span class="sd">        - &quot;after_due_date&quot;: test case will be shown after the assignment&#39;s due</span>
+<span class="sd">        - ``after_due_date``: test case will be shown after the assignment&#39;s due</span>
 <span class="sd">          date has passed. If late submission is allowed, then test will be</span>
 <span class="sd">          shown only after the late due date.</span>
 
 <span class="sd">    default_weight : int</span>
-<span class="sd">        The default weight of the tests.</span>
+<span class="sd">        The default weight of the tests. Default is 1.</span>
 
-<span class="sd">    default_timeout : int</span>
-<span class="sd">        The default timeout for the tests.</span>
+<span class="sd">    default_timeout : Optional[int]</span>
+<span class="sd">        The default timeout for each tests. If ``None``, no timeout will be</span>
+<span class="sd">        used beyond Gradescope&#39;s own timeout for the autograder process as a whole. Default is ``None``.</span>
 
 <span class="sd">    leaderboard : Optional[dict]</span>
 <span class="sd">        A dictionary mapping leaderboard categories to scores for this</span>
-<span class="sd">        submission. If None, no leaderboard will be used.</span>
+<span class="sd">        submission. If ``None``, no leaderboard will be used. Default is</span>
+<span class="sd">        ``None``.</span>
 
 <span class="sd">    failure_message : Optional[Callable]</span>
-<span class="sd">        A function that formats a failure message for a test. If None, a</span>
+<span class="sd">        A function that formats a failure message for a test. If ``None``, a</span>
 <span class="sd">        default failure message will be used.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
