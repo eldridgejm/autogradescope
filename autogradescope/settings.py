@@ -4,7 +4,10 @@ from .exceptions import SettingsError
 
 
 class Settings:
-    """An object to store settings for the autograder.
+    """Stores autograder settings.
+
+    A test module should have a single instance of this object, named
+    ``SETTINGS``, that is used to store the settings for the autograder.
 
     This object does error checking on the settings to ensure that they are
     valid, and to prevent typos from causing terrible catastrophes that could
@@ -16,29 +19,32 @@ class Settings:
     default_visibility : str
         The default visibility of the tests. Valid options are:
 
-        - "hidden": The test results are never visible to the students.
+        - ``hidden``: The test results are never visible to the students.
 
-        - "visible": The test results are always visible to the students.
+        - ``visible``: The test results are always visible to the students.
 
-        - "after_published": test case will be shown only when the assignment
-          is explicitly published from the "Review Grades" page.
+        - ``after_published``: test case will be shown only when the assignment
+          is explicitly published from the "Review Grades" page. If not provided,
+          this is the default.
 
-        - "after_due_date": test case will be shown after the assignment's due
+        - ``after_due_date``: test case will be shown after the assignment's due
           date has passed. If late submission is allowed, then test will be
           shown only after the late due date.
 
     default_weight : int
-        The default weight of the tests.
+        The default weight of the tests. Default is 1.
 
-    default_timeout : int
-        The default timeout for the tests.
+    default_timeout : Optional[int]
+        The default timeout for each tests. If ``None``, no timeout will be
+        used beyond Gradescope's own timeout for the autograder process as a whole. Default is ``None``.
 
     leaderboard : Optional[dict]
         A dictionary mapping leaderboard categories to scores for this
-        submission. If None, no leaderboard will be used.
+        submission. If ``None``, no leaderboard will be used. Default is
+        ``None``.
 
     failure_message : Optional[Callable]
-        A function that formats a failure message for a test. If None, a
+        A function that formats a failure message for a test. If ``None``, a
         default failure message will be used.
 
     """

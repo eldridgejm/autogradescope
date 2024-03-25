@@ -323,24 +323,24 @@ failed) if the student does not pass the test.
 API
 ===
 
-:mod:`autogradescope`
----------------------
+Module: :mod:`autogradescope`
+-----------------------------
 
 .. automodule:: autogradescope
    :members:
    :undoc-members:
    :show-inheritance:
 
-:mod:`autogradescope.decorators`
---------------------------------
+Module: :mod:`autogradescope.decorators`
+----------------------------------------
 
 .. automodule:: autogradescope.decorators
    :members:
    :undoc-members:
    :show-inheritance:
 
-:mod:`autogradescope.doctests`
---------------------------------
+Module: :mod:`autogradescope.doctests`
+--------------------------------------
 
 .. automodule:: autogradescope.doctests
    :members:
