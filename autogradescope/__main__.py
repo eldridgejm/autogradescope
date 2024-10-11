@@ -55,6 +55,7 @@ def copy_template(template_path, dest_path):
 
     copy_template_directory(template_path, dest_path)
 
+
 # main function =====================================================================
 
 
@@ -70,12 +71,15 @@ def main():
     print("Creating autograder...")
 
     # copy the template
-    template_path = importlib.resources.files("autogradescope") / "template"
-    copy_template(template_path, pathlib.Path("autograder"))
+    with importlib.resources.as_file(importlib.resources.files("autogradescope")) as p:
+        template_path = p / "template"
+        copy_template(template_path, pathlib.Path("autograder"))
 
     # copy the autogradescope source into the autograder setup
-    src_path = importlib.resources.files("autogradescope")
-    copy_template(src_path, pathlib.Path("autograder/setup/autogradescope"))
+    with importlib.resources.as_file(
+        importlib.resources.files("autogradescope")
+    ) as src_path:
+        copy_template(src_path, pathlib.Path("autograder/setup/autogradescope"))
 
     # remove the autogradescope/template directory
     shutil.rmtree("autograder/setup/autogradescope/template")
@@ -100,6 +104,7 @@ def main():
     # create the solution module
     solution_module_path = pathlib.Path(f"autograder/solution/{module_name}.py")
     solution_module_path.touch()
+
 
 if __name__ == "__main__":
     main()

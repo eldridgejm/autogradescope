@@ -6,8 +6,5 @@ name = "autogradescope"
 version = "0.1.0"
 dependencies = ["pytest", "click", "rich"]
 
-[options.package_data]
-autogradescope = ["template/**/*"]
-
 [project.scripts]
 autogradescope = "autogradescope.__main__:main"
