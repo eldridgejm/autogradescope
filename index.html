@@ -7,8 +7,8 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autogradescope &mdash; autogradescope  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -196,7 +196,7 @@ displayed to students to show them precisely what went wrong. For this reason,
 it is recommended to include comments in the test code to explain what the test
 is checking for.</p>
 <p>An example of a simple autograder test is shown below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_doubling_21</span><span class="p">():</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_doubling_21</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Doubling 21 makes 42.&quot;&quot;&quot;</span>
     <span class="c1"># When we give your code 21, it should return 42.</span>
     <span class="k">assert</span> <span class="n">pp01</span><span class="o">.</span><span class="n">doubler</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span> <span class="o">==</span> <span class="mi">42</span>
@@ -224,7 +224,7 @@ worth 2 points, has a timeout of 10 seconds, and is hidden from students:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@weight</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="nd">@timeout</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 <span class="nd">@visibility</span><span class="p">(</span><span class="s2">&quot;hidden&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_easy_1</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_easy_1</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Doubling 21 makes 42.&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">pp01</span><span class="o">.</span><span class="n">doubler</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span> <span class="o">==</span> <span class="mi">42</span>
 </pre></div>
@@ -235,8 +235,8 @@ worth 2 points, has a timeout of 10 seconds, and is hidden from students:</p>
 <p>The full example below shows a simple autograder test file with a few tests.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Public autograder tests.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">autogradescope</span> <span class="kn">import</span> <span class="n">Settings</span>
-<span class="kn">from</span> <span class="nn">autogradescope.decorators</span> <span class="kn">import</span> <span class="n">weight</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">visibility</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogradescope</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autogradescope.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">weight</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">visibility</span>
 
 <span class="c1"># settings =============================================================================</span>
 
@@ -274,19 +274,19 @@ worth 2 points, has a timeout of 10 seconds, and is hidden from students:</p>
 <span class="c1"># tests ================================================================================</span>
 
 <span class="c1"># import the student&#39;s submission</span>
-<span class="kn">import</span> <span class="nn">pp01</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pp01</span>
 
-<span class="k">def</span> <span class="nf">test_for_smoke</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_for_smoke</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks that the submission runs without error.&quot;&quot;&quot;</span>
     <span class="n">pp01</span><span class="o">.</span><span class="n">doubler</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="nd">@weight</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_easy_1</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_easy_1</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Doubling 21 makes 42.&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">pp01</span><span class="o">.</span><span class="n">doubler</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span> <span class="o">==</span> <span class="mi">42</span>
 
 <span class="nd">@timeout</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_lots_of_doubling</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_lots_of_doubling</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Doubling 1 million gives a big number.&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">pp01</span><span class="o">.</span><span class="n">doubler</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">1_000_000</span>
 </pre></div>
@@ -335,7 +335,7 @@ write:</p>
 <span class="p">}</span>
 
 <span class="nd">@weight</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_accuracy_above_75</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_accuracy_above_75</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Accuracy is above 75%.&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">YOUR_ACCURACY</span> <span class="o">&gt;</span> <span class="mf">0.75</span>
 </pre></div>
@@ -349,12 +349,12 @@ code will be called and what it should return. In such cases, you may
 want to write an autograder test that checks that the doctests pass (this can
 be a useful public test). To do this, you can use <a class="reference internal" href="#autogradescope.doctests.run" title="autogradescope.doctests.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">autogradescope.doctests.run()</span></code></a>.
 For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">autogradescope.doctests</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">autogradescope.doctests</span>
 
 <span class="c1"># import the student&#39;s submission</span>
-<span class="kn">import</span> <span class="nn">pp01</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pp01</span>
 
-<span class="k">def</span> <span class="nf">test_doctests</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_doctests</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check that the doctests pass.&quot;&quot;&quot;</span>
     <span class="n">doctests</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pp01</span><span class="p">)</span>
 </pre></div>
@@ -373,7 +373,7 @@ stringent doctests than the starter code.</p>
 <p>A test can be marked as extra credit by using the <code class="docutils literal notranslate"><span class="pre">extra_credit</span></code> argument to
 the <a class="reference internal" href="#autogradescope.decorators.weight" title="autogradescope.decorators.weight"><code class="xref py py-func docutils literal notranslate"><span class="pre">autogradescope.decorators.weight()</span></code></a> decorator. For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@weight</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">extra_credit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_extra_credit</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_extra_credit</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This test is extra credit.&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">pp01</span><span class="o">.</span><span class="n">doubler</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span> <span class="o">==</span> <span class="mi">42</span>
 </pre></div>
@@ -522,11 +522,11 @@ correct.</p>
 </dl>
 <p class="rubric">Example</p>
 <p>To run the doctests for a student’s submission in an auto-grader test:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">autogradescope.doctests</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">autogradescope.doctests</span>
 
-<span class="kn">import</span> <span class="nn">pp01</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pp01</span>
 
-<span class="k">def</span> <span class="nf">test_doctests</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_doctests</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks that the doctests pass.&quot;&quot;&quot;</span>
     <span class="n">autogradescope</span><span class="o">.</span><span class="n">doctests</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pp01</span><span class="p">)</span>
 </pre></div>

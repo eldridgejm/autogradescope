@@ -6,8 +6,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>autogradescope.doctests &mdash; autogradescope  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
@@ -67,17 +67,17 @@
              
   <h1>Source code for autogradescope.doctests</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;A convenience function for running doctests within autograder tests.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">contextlib</span>
-<span class="kn">import</span> <span class="nn">doctest</span>
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">import</span> <span class="nn">textwrap</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">doctest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">textwrap</span>
 
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">DoctestError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoctestError</span>
 
 
 <div class="viewcode-block" id="run">
 <a class="viewcode-back" href="../../index.html#autogradescope.doctests.run">[docs]</a>
-<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Runs a module&#39;s doctests.</span>
 
 <span class="sd">    This can be used in autograder tests to ensure that the doctests are</span>
