@@ -96,11 +96,18 @@ def format_failure_message_for_student(report, exception: Exception) -> str:
     intro_msg = textwrap.fill(intro_msg, 80)
 
     if show_traceback:
-        traceback_lines: typing.List[str] = (
-            report.longrepr.chain[0][0].reprentries[0].lines
-        )
-        traceback_lines = remove_decorators(traceback_lines)
-        traceback = "\n".join(traceback_lines)
+        # most reports expose the traceback at this nested location, but some
+        # longrepr shapes (e.g. certain fixture-setup failures) don't have a
+        # `.chain`; in that case we fall back to whatever str(longrepr) gives us
+        # rather than crashing the reporter.
+        try:
+            traceback_lines: typing.List[str] = (
+                report.longrepr.chain[0][0].reprentries[0].lines
+            )
+            traceback_lines = remove_decorators(traceback_lines)
+            traceback = "\n".join(traceback_lines)
+        except AttributeError:
+            traceback = str(getattr(report, "longrepr", ""))
         traceback_msg = textwrap.indent(traceback, "    ")
         traceback_msg = "Here is the test that elicited the error:\n\n" + traceback_msg
     else:
@@ -260,11 +267,22 @@ def pytest_runtest_call(item):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """After a test is run, save its report to session.reports."""
+    """After a test is run, save its report to session.reports.
+
+    We always record the `call`-phase report for tests that run to completion.
+    We also record a *failed* setup/teardown report (e.g. a session fixture that
+    raised), because in that case the `call` phase never runs -- without this the
+    test would be silently dropped from results.json instead of counting as a
+    failure.
+    """
     result = yield
+    report = result.get_result()
     if call.when == "call":
-        report = result.get_result()
         item.session.reports[item] = report
+    elif call.when in ("setup", "teardown") and report.failed:
+        item.session.reports.setdefault(item, report)
+        if call.excinfo is not None:
+            item.session.exceptions.setdefault(item, call.excinfo.value)
 
 
 def pytest_sessionfinish(session, exitstatus):

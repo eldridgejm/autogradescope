@@ -292,6 +292,60 @@ def test_score_multiple_tests(run_example):
     assert "score" not in results
 
 
+# fixture setup/teardown errors -------------------------------------------------------
+
+
+def test_reports_tests_that_error_during_fixture_setup(run_example):
+    results = run_example(
+        """
+        import pytest
+        from autogradescope import Settings
+        SETTINGS = Settings()
+
+        @pytest.fixture
+        def broken():
+            raise AssertionError("setup blew up")
+
+        def test_uses_broken_fixture(broken):
+            assert True
+    """
+    )
+    names = [t["name"] for t in results["tests"]]
+    assert any("test_uses_broken_fixture" in n or "broken" in n for n in names), results
+    failed = [t for t in results["tests"] if t["score"] == 0]
+    assert failed, results
+    assert "setup blew up" in failed[0]["output"]
+
+
+def test_setup_error_does_not_drop_other_tests(run_example):
+    results = run_example(
+        """
+        import pytest
+        from autogradescope import Settings
+        SETTINGS = Settings()
+
+        @pytest.fixture
+        def broken():
+            raise AssertionError("setup blew up")
+
+        def test_uses_broken_fixture(broken):
+            assert True
+
+        def test_ordinary_pass():
+            assert True
+    """
+    )
+    names = [t["name"] for t in results["tests"]]
+    assert "test_uses_broken_fixture" in names, results
+    assert "test_ordinary_pass" in names, results
+
+    by_name = {t["name"]: t for t in results["tests"]}
+    assert by_name["test_uses_broken_fixture"]["score"] == 0
+    assert by_name["test_ordinary_pass"]["score"] == 1
+    # the errored-setup test still contributes its weight to the denominator
+    assert by_name["test_uses_broken_fixture"]["max_score"] == 1
+
+
 # missing submission / bad imports -----------------------------------------------------
 
 
